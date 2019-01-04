@@ -1,7 +1,8 @@
 // Library Imports
-var express = require('express');
-var bodyParser = require('body-parser');
-var {ObjectID} = require('mongodb');
+const _ = require('lodash'); // Use in PATCH
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 // Local Imports
 var {mongoose} = require('./db/mongoose');
@@ -84,6 +85,35 @@ app.delete('/todos/:id', (req, res) => {
          // 400 with empty body
         res.status(400).send();
     });
+});
+
+// PATCH /todos/:id
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    // Specified fields that user can update ('test' and 'completed')
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send();
+    }
+
+    if (_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    // Update to mongodb, use mongdb syntax
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo) {
+            return res.status(404);
+        }
+
+        res.send({todo});
+    }).catch((e) => {
+        res.status(400).send();
+    })
 });
 
 app.listen(port, () => {
