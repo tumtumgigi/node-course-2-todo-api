@@ -8,10 +8,14 @@ const {Todo} = require('./../models/todo');
 
 const todos = [{
     _id: new ObjectID(),
-    text: 'First test todo'
+    text: 'First test todo',
+    completed: false,
+    completedAt: 999
 }, {
     _id : new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333
 }];
 
 
@@ -141,10 +145,10 @@ describe('DELETE /todos:id', () => {
     });
 
     it('should return 404 if todo not found', (done) => {
-        var hexID = new ObjectID().toHexString();
+        var hexId = new ObjectID().toHexString();
 
         request(app)
-            .delete(`/todos/${hexID}`)
+            .delete(`/todos/${hexId}`)
             .expect(404)
             .end(done);
     });
@@ -154,5 +158,49 @@ describe('DELETE /todos:id', () => {
             .delete('/todos/1234')
             .expect(404)
             .end(done);
+    });
+});
+
+// Group the PATCH /todos/:id routes
+describe('PATCH /todos/:id', () => {
+    it('should update the todo', (done) => {
+        // Grab id of first item
+        var hexId = todos[0]._id.toHexString();
+        var text = 'This should replace the 1st text'
+        // Update text, set completed true
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                text,
+                completed: true
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(typeof(res.body.todo.completedAt)).toBe('number')
+            })
+            .end(done);
+    });
+
+    it('should clear completedAt when todo is not completed', (done) => {
+        // Grab id of second todo item
+        var hexId = todos[1]._id.toHexString();
+        var text = 'This should be a new text'
+        // Update text, set completed to false
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                completed: false,
+                text: text // or just <text> in ES6 Syntax
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toBeFalsy();
+            })
+            .end(done)
+        // text is changed, completed false, completedAt is null .toNotExist
     });
 });
