@@ -195,12 +195,12 @@ describe('PATCH /todos/:id', () => {
                 text: text // or just <text> in ES6 Syntax
             })
             .expect(200)
+            // text is changed, completed false, completedAt is null .toNotExist
             .expect((res) => {
                 expect(res.body.todo.text).toBe(text);
                 expect(res.body.todo.completed).toBe(false);
                 expect(res.body.todo.completedAt).toBeFalsy();
             })
             .end(done)
-        // text is changed, completed false, completedAt is null .toNotExist
     });
 });
