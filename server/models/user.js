@@ -36,7 +36,7 @@ var UserSchema = new mongoose.Schema({
     }]
 });
 
-// What exactly is send back when mongoose convert to JSON value
+// Defined the data that send back when mongoose convert to JSON value
 UserSchema.methods.toJSON = function () {
     var user = this;
     var userObject = user.toObject();
@@ -54,6 +54,26 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(() => {
         return token;
+    });
+};
+
+UserSchema.statics.findByToken = function (token) {
+    var User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // });
+        return Promise.reject(); // Simplified the above commented block
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access' : 'auth'
     });
 };
 
