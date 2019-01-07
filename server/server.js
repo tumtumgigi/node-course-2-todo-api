@@ -37,7 +37,7 @@ app.get('/todos', (req, res) => {
     });
 });
 
-// GET /todos/123456
+// GET /todos/:id route
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id
 
@@ -64,6 +64,7 @@ app.get('/todos/:id', (req, res) => {
     });
 });
 
+// DELETE /todos/:id route
 app.delete('/todos/:id', (req, res) => {
     // get the id
     var id = req.params.id
@@ -119,7 +120,7 @@ app.patch('/todos/:id', (req, res) => {
     })
 });
 
-// POST /users
+// POST /users route
 app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']);
     var user = new User(body);
@@ -133,7 +134,7 @@ app.post('/users', (req, res) => {
     })
 });
 
-// GET /users/me
+// GET /users/me route
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
