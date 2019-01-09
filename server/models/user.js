@@ -45,7 +45,7 @@ UserSchema.methods.toJSON = function () {
     return _.pick(userObject, ['_id', 'email']);
 };
 
-// Create a methods for UserSchema Object
+// Create tokens attribute and save it to db
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
     var access = 'auth';
@@ -74,7 +74,7 @@ UserSchema.statics.findByToken = function (token) {
     return User.findOne({
         '_id': decoded._id,
         'tokens.token': token,
-        'tokens.access' : 'auth'
+        'tokens.access': 'auth'
     });
 };
 
