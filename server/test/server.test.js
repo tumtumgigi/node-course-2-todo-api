@@ -268,6 +268,7 @@ describe('POST /users', () => {
     });
 });
 
+// Group the POST /users/login test route
 describe('POST /users/login', () => {
     it('should login user and return auth token', (done) => {
         request(app)
@@ -315,6 +316,27 @@ describe('POST /users/login', () => {
                     expect(user.tokens.length).toBe(0)
                     done();
                 }).catch((e) => done(e));                
+            });
+    });
+});
+
+// Group the DELETE /users/me/token test route
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        // DELETE /users/me/token
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token)      
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                User.findById(users[0]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0)
+                    done();
+                });
             });
     });
 });
